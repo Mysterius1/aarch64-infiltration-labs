@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial Aarch64 - Acceso a Memoria</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+    <canvas id="Matrix"></canvas>
+
+    <header>
+        <h1>Curso de Assembly Aarch64 (ARM 64-bits)</h1>
+        <p>Aprende programación de bajo nivel con una estructura clara y profesional.</p>
+    </header>
+
+    <main>
+        <nav class="terminal-menu">
+    <div class="terminal-header">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="terminal-title">DECRYPT_MODULE_v3.asm</span>
+    </div>
+    <div class="terminal-body">
+        <p><span class="prompt">Պ¥ՏԵӗԄұՄ§@OFC:~#</span> ./access_database.bin</p>
+        
+        <!-- BARRA DE CARGA ÉPICA -->
+        <div class="progress-container">
+            <div class="progress-bar"></div>
+        </div>
+        <p class="text-loading">BYPASSING_ENCRYPTION... DONE</p>
+
+        <ul>
+            <li><a href="index.html" class="active">/01_REGISTROS</a></li>
+            <li><a href="leccion2.html">/02_ARITMETICA</a></li>
+            <li><a href="leccion3.html">/03_MEMORIA_RAM</a></li>
+            <li><a href="leccion4.html">/04_CONTROL_FLUJO</a></li>
+        </ul>
+    </div>
+</nav>
+
+        <article>
+            <h2>Lección 3: Carga y Almacenamiento en Memoria (Load y Store)</h2>
+            <p>Aarch64 utiliza una arquitectura llamada <strong>Load/Store</strong>. Esto significa que las instrucciones aritméticas solo funcionan entre registros. Para interactuar con la memoria RAM, dependemos exclusivamente de dos comandos fundamentales.</p>
+            
+            <h3>1. Las 2 Instrucciones de Memoria</h3>
+            <p>A diferencia de otras arquitecturas, aquí dividimos la lectura y la escritura de forma estricta:</p>
+            <ol>
+                <li>
+                    <strong><code>LDR</code> (Load Register):</strong> 
+                    Lee un dato desde una dirección de memoria RAM y lo trae hacia un registro del procesador.
+                    <br><em>Sintaxis básica:</em> <code>LDR Xd, [Xn]</code>
+                </li>
+                <li>
+                    <strong><code>STR</code> (Store Register):</strong> 
+                    Toma un dato que ya está dentro de un registro y lo guarda en una dirección de la memoria RAM.
+                    <br><em>Sintaxis básica:</em> <code>STR Xt, [Xn]</code>
+                </li>
+            </ol>
+
+            <h3>2. El uso de los Corchetes</h3>
+            <p>En Aarch64, los corchetes actúan como los punteros. Indican que el registro de adentro no contiene un número común, sino una <strong>dirección de memoria física</strong>.</p>
+            <ul>
+                <li><code>MOV X0, X1</code>: Copia el valor del registro X1 directamente dentro del registro X0.</li>
+                <li><code>LDR X0, [X1]</code>: Va a la dirección de la memoria RAM que apunta X1, lee lo que hay allí y lo mete en X0.</li>
+            </ul>
+
+            <h3>3. Modos de Direccionamiento Comunes</h3>
+            <p>Para movernos a través de arreglos o variables en memoria de manera ordenada, usamos estas tres variantes de sintaxis:</p>
+            <ul>
+                <li>
+                    <strong>Desplazamiento Inmediato (Offset):</strong> 
+                    Accede a una dirección sumando un número de bytes sin modificar el registro base.
+                    <br><code>LDR X0, [X1, #8]</code> (Lee la dirección X1 + 8 bytes).
+                </li>
+                <li>
+                    <strong>Pre-indexado (Pre-indexed):</strong> 
+                    Suma el desplazamiento al registro base primero, accede a la memoria y actualiza el registro base automáticamente.
+                    <br><code>LDR X0, [X1, #8]!</code> (El signo de exclamación indica que X1 cambia su valor).
+                </li>
+                <li>
+                    <strong>Post-indexado (Post-indexed):</strong> 
+                    Accede primero a la dirección actual del registro base, y después de leer o escribir, le suma el desplazamiento.
+                    <br><code>LDR X0, [X1], #8</code> (Lee X1, y luego X1 aumenta en 8).
+                </li>
+            </ul>
+
+            <h3>4. Ejemplo Práctico Estructurado</h3>
+            <p>Analiza cómo se combinan las instrucciones de las lecciones anteriores con el manejo de memoria:</p>
+            
+            <pre><code>
+// X1 contiene la dirección de memoria de un número (ejemplo: 100)
+// X2 contiene la dirección de memoria donde guardaremos el resultado
+
+LDR X9, [X1]         ; 1. Traemos el valor desde la RAM (X9 ahora tiene el número 100)
+ADD X9, X9, #50      ; 2. Modificamos el dato de forma segura (100 + 50 = 150)
+STR X9, [X2]         ; 3. Guardamos el nuevo valor (150) de vuelta en la RAM
+            </code></pre>
+        </article>
+    </main>
+
+    <footer>
+        <p>[ PROYECTO INICIADO POR: <span class="autor">Պ¥ՏԵӗԄұՄ§ OFC</span> ]</p>
+        <p>STATUS: OPERACIONAL // ENTORNO: AARCH64_LABS // YEAR: 2026</p>
+    </footer>
+
+<script>
+const canvas = document.getElementById('Matrix');
+const context = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const katakana = '01'; // Puedes poner '01X0X9SP' para que use tus registros
+const fontSize = 16;
+const columns = canvas.width / fontSize;
+
+const rainDrops = [];
+
+for (let x = 0; x < columns; x++) {
+    rainDrops[x] = 1;
+}
+
+const draw = () => {
+    context.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    context.fillStyle = '#00ff66'; // El verde neón de MYSTERIUS
+    context.font = fontSize + 'px monospace';
+
+    for (let i = 0; i < rainDrops.length; i++) {
+        const text = katakana.charAt(Math.floor(Math.random() * katakana.length));
+        context.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+
+        if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+            rainDrops[i] = 0;
+        }
+        rainDrops[i]++;
+    }
+};
+
+setInterval(draw, 30);
+</script>
+
+</body>
+</html>

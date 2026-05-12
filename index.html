@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial Aarch64 - Los Registros del Procesador</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+    <!-- Capa de datos Matrix -->
+    <canvas id="Matrix"></canvas>
+
+    <header>
+        <!-- Tu Identidad Visual -->
+        <div class="logo-container">
+            <img src="perfil.jpg" alt="MYSTERIUS LOGO" class="hacker-logo">
+        </div>
+        
+        <h1 class="glitch-effect" data-text="Պ¥ՏԵӗԄұՄ§ OFC">Պ¥ՏԵӗԄұՄ§ OFC</h1>
+        <p>AARCH64_INFILTRATION_LABS // VOL_1</p>
+        <p style="font-size: 0.8rem; color: var(--neon-green); opacity: 0.6;">SISTEMA OPERATIVO: ARM_64_ARCH_ACTIVE</p>
+    </header>
+
+    <main>
+        <!-- Consola de Navegación -->
+        <nav class="terminal-menu">
+            <div class="terminal-header">
+                <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                <span class="terminal-title">DECRYPT_MODULE_v3.asm</span>
+            </div>
+            <div class="terminal-body">
+                <p><span class="prompt">Պ¥ՏԵӗԄұՄ§@OFC:~#</span> ./access_database.bin</p>
+                
+                <div class="progress-container">
+                    <div class="progress-bar"></div>
+                </div>
+                <p class="text-loading">BYPASSING_ENCRYPTION... DONE</p>
+
+                <ul>
+                    <li><a href="index.html" class="active">/01_REGISTROS</a></li>
+                    <li><a href="leccion2.html">/02_ARITMETICA</a></li>
+                    <li><a href="leccion3.html">/03_MEMORIA_RAM</a></li>
+                    <li><a href="leccion4.html">/04_CONTROL_FLUJO</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Bloque de Datos de la Lección -->
+        <article>
+                <h3>2. Guía de Uso de los 31 Registros de Propósito General</h3>
+    <p>Aunque se llaman de propósito general, existe un estándar estricto (la ABI de ARM) que define funciones específicas para mantener la estabilidad del sistema:</p>
+    
+    <ol>
+        <li>
+            <strong>X0 - X7 (Argumentos y Resultados):</strong> 
+            Se usan para pasar parámetros de entrada a las funciones externas o del sistema. Además, <code>X0</code> es el registro principal para almacenar el valor de retorno que devuelve cualquier función al terminar.
+        </li>
+        <li>
+            <strong>X8 (Registro de Estructura / Syscall):</strong> 
+            En sistemas operativos como Linux, se utiliza para colocar el número de la llamada al sistema antes de ejecutar la instrucción. En funciones estándar, pasa la dirección de memoria de estructuras devueltas.
+        </li>
+        <li>
+            <strong>X9 - X15 (Registros Temporales - Caller-saved):</strong> 
+            Son registros de uso libre para cálculos rápidos. Las funciones que llames no tienen la obligación de mantener sus valores; si necesitas conservar tus datos tras llamar a una función, debes salvarlos antes en la pila (Stack).
+        </li>
+        <li>
+            <strong>X16 y X17 (Registros de Uso Interno - IP0 e IP1):</strong> 
+            Llamados registros temporales intra-procedimiento. Son utilizados de forma automática por el enlazador (linker) para saltos de código a librerías dinámicas y por los compiladores. Se recomienda evitar su uso manual para no sobrescribir datos del sistema.
+        </li>
+        <li>
+            <strong>X18 (Registro de Plataforma):</strong> 
+            Reservado estrictamente para las necesidades internas del sistema operativo anfitrión (como Windows ARM o el entorno de desarrollo de Apple). No debes utilizarlo en tus programas si quieres que tu código sea ejecutable en múltiples plataformas.
+        </li>
+        <li>
+            <strong>X19 - X28 (Registros Preservados - Callee-saved):</strong> 
+            Son tus almacenes seguros de variables a largo plazo. Cualquier función externa que llames está obligada por contrato a guardar estos registros en la pila y restaurar sus valores originales antes de regresar a tu código.
+        </li>
+        <li>
+            <strong>X29 (Frame Pointer - FP):</strong> 
+            Mantiene la dirección base del marco de la pila actual. Es esencial para rastrear tus variables locales y depurar errores analizando el historial de funciones ejecutadas.
+        </li>
+        <li>
+            <strong>X30 (Link Register - LR):</strong> 
+            Almacena automáticamente la dirección de retorno cuando haces un salto a una función mediante la instrucción <code>BL</code> (Branch with Link). Le dice al procesador exactamente a dónde volver al terminar.
+        </li>
+    </ol>
+
+                <!-- ==========================================================================
+               NUEVA SECCIÓN: EJEMPLOS PRÁCTICOS DE REGLAS DE REGISTROS
+               ========================================================================== -->
+            <h3>4. Casos Prácticos: ¿Cómo se usan en la vida real?</h3>
+            <p>Para consolidar el mapa de registros, analiza estos dos escenarios comunes que enfrentarás al programar en Aarch64:</p>
+
+            <div class="hacker-box" style="border: 1px solid var(--neon-blue); padding: 15px; margin-bottom: 20px; background: rgba(0,242,255,0.02);">
+                <h4 style="color: var(--neon-blue); margin-top: 0;">Escenario A: Llamada a una Función de Suma</h4>
+                <p>Imagínate una función en alto nivel como <code>calcular_total(5, 10)</code>. Cuando el compilador la traduce a Assembly Aarch64, el procesador asigna los registros estrictamente según sus roles:</p>
+                <ul>
+                    <li>El número <code>5</code> se carga automáticamente en <code>X0</code> (Primer argumento).</li>
+                    <li>El número <code>10</code> se carga automáticamente en <code>X1</code> (Segundo argumento).</li>
+                    <li>La función procesa la suma interna y guarda el resultado (<code>15</code>) de vuelta en <code>X0</code>. El código que llamó a la función sabe que debe buscar la respuesta exclusivamente en <code>X0</code>.</li>
+                </ul>
+            </div>
+
+            <div class="hacker-box" style="border: 1px solid var(--neon-red); padding: 15px; background: rgba(255,0,60,0.02);">
+                <h4 style="color: var(--neon-red); margin-top: 0;">Escenario B: El Peligro de los Registros Temporales</h4>
+                <p>Analiza este error clásico de lógica que destruye datos por no respetar la clasificación de registros:</p>
+                <pre><code>
+// Estás haciendo un cálculo importante
+MOV X9, #500          ; Guardas 500 en el registro TEMPORAL X9
+
+BL mi_funcion_externa ; Saltas a una función para imprimir un texto
+
+// ¡Aquí ocurre el desastre técnico!
+ADD X2, X9, #10       ; ERROR FATAL: X9 ya no vale 500. 
+                      ; La función externa usó X9 para sus propios cálculos 
+                      ; rápidos y borró tu número original.
+                </code></pre>
+                <p><strong>Solución Hacker:</strong> Para evitar esto, debiste guardar el número 500 en un registro preservado como <code>X19</code>, o haber empujado <code>X9</code> a la pila (Stack) antes de ejecutar el salto <code>BL</code>.</p>
+            </div>
+
+</article>
+
+    </main>
+
+    <footer>
+        <p>[ PROYECTO INICIADO POR: <span class="autor">Պ¥ՏԵӗԄұՄ§ OFC</span> ]</p>
+        <p>STATUS: OPERACIONAL // ENTORNO: AARCH64_LABS // YEAR: 2026</p>
+    </footer>
+<script>
+const canvas = document.getElementById('Matrix');
+const context = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const katakana = '01'; // Puedes poner '01X0X9SP' para que use tus registros
+const fontSize = 16;
+const columns = canvas.width / fontSize;
+
+const rainDrops = [];
+
+for (let x = 0; x < columns; x++) {
+    rainDrops[x] = 1;
+}
+
+const draw = () => {
+    context.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    context.fillStyle = '#00ff66'; // El verde neón de MYSTERIUS
+    context.font = fontSize + 'px monospace';
+
+    for (let i = 0; i < rainDrops.length; i++) {
+        const text = katakana.charAt(Math.floor(Math.random() * katakana.length));
+        context.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+
+        if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+            rainDrops[i] = 0;
+        }
+        rainDrops[i]++;
+    }
+};
+
+setInterval(draw, 30);
+</script>
+
+</body>
+</html>

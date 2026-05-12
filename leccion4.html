@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial Aarch64 - Control de Flujo</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+    <canvas id="Matrix"></canvas>
+
+    <header>
+        <h1>Curso de Assembly Aarch64 (ARM 64-bits)</h1>
+        <p>Aprende programación de bajo nivel con una estructura clara y profesional.</p>
+    </header>
+
+    <main>
+        <nav class="terminal-menu">
+    <div class="terminal-header">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="terminal-title">DECRYPT_MODULE_v3.asm</span>
+    </div>
+    <div class="terminal-body">
+        <p><span class="prompt">Պ¥ՏԵӗԄұՄ§@OFC:~#</span> ./access_database.bin</p>
+        
+        <!-- BARRA DE CARGA ÉPICA -->
+        <div class="progress-container">
+            <div class="progress-bar"></div>
+        </div>
+        <p class="text-loading">BYPASSING_ENCRYPTION... DONE</p>
+
+        <ul>
+            <li><a href="index.html" class="active">/01_REGISTROS</a></li>
+            <li><a href="leccion2.html">/02_ARITMETICA</a></li>
+            <li><a href="leccion3.html">/03_MEMORIA_RAM</a></li>
+            <li><a href="leccion4.html">/04_CONTROL_FLUJO</a></li>
+        </ul>
+    </div>
+</nav>
+
+        <article>
+            <h2>Lección 4: Comparaciones, Etiquetas y Saltos (Branches)</h2>
+            <p>El control de flujo en Aarch64 se realiza en dos pasos estrictos: primero se realiza una operación matemática que altera las banderas (flags) del procesador en el registro de estado (NZCV), y luego se ejecuta un salto condicional basado en esas banderas.</p>
+            
+            <h3>1. Las Etiquetas (Labels)</h3>
+            <p>Una etiqueta es una palabra que tú inventas seguida de dos puntos (<code>:</code>). Sirve para marcar una dirección de memoria en el código a la cual el procesador puede saltar directamente.</p>
+            <pre><code>mi_etiqueta:
+    MOV X0, #5    ; El código continúa aquí después de un salto</code></pre>
+
+            <h3>2. La Instrucción de Comparación: <code>CMP</code></h3>
+            <p>La instrucción <code>CMP</code> (Compare) resta el segundo operando del primero (<code>Xn - Xm</code>). El procesador descarta el resultado numérico, pero actualiza las banderas de estado:</p>
+            <ul>
+                <li><strong>N (Negative):</strong> Se activa si el resultado es negativo.</li>
+                <li><strong>Z (Zero):</strong> Se activa si el resultado es cero (significa que ambos números eran iguales).</li>
+                <li><strong>C (Carry):</strong> Se activa si ocurre un acarreo aritmético.</li>
+                <li><strong>V (Overflow):</strong> Se activa si ocurre un desbordamiento numérico.</li>
+            </ul>
+            <p><em>Sintaxis:</em> <code>CMP Xn, Xm</code> o <code>CMP Xn, #inmediato</code></p>
+
+            <h3>3. Instrucciones de Salto (Branches)</h3>
+            <p>Existen saltos incondicionales (saltar siempre) y saltos condicionales (saltar solo si se cumple una regla de la comparación previa):</p>
+            <ol>
+                <li>
+                    <strong><code>B</code> (Branch):</strong> 
+                    Salto incondicional. Obliga al procesador a ir a la etiqueta indicada sin importar nada.
+                    <br><em>Sintaxis:</em> <code>B etiqueta</code>
+                </li>
+                <li>
+                    <strong><code>B.EQ</code> (Branch if Equal):</strong> 
+                    Salta a la etiqueta si los dos números comparados con <code>CMP</code> eran exactamente iguales (si la bandera Z es 1).
+                </li>
+                <li>
+                    <strong><code>B.NE</code> (Branch if Not Equal):</strong> 
+                    Salta a la etiqueta si los números comparados eran diferentes (si la bandera Z es 0).
+                </li>
+                <li>
+                    <strong><code>B.GT</code> (Branch if Greater Than):</strong> 
+                    Salta si el primer número era estrictamente mayor que el segundo (para números con signo).
+                </li>
+                <li>
+                    <strong><code>B.LT</code> (Branch if Less Than):</strong> 
+                    Salta si el primer número era estrictamente menor que el segundo (para números con signo).
+                </li>
+            </ol>
+
+            <h3>4. Ejemplo Práctico Estructurado (Simulación de un IF / ELSE)</h3>
+            <p>Analiza cómo estructurar una condición para verificar si el contenido de un registro es igual a 10:</p>
+            
+            <pre><code>
+// X9 contiene un número que queremos validar (por ejemplo, el número 10)
+
+CMP X9, #10          ; 1. Comparamos el valor de X9 con el número 10
+B.NE es_diferente    ; 2. Si NO son iguales, salta a la etiqueta 'es_diferente'
+
+// --- Bloque IF: Se ejecuta SOLO si X9 es exactamente 10 ---
+MOV X0, #1           ; Código que se ejecuta si es igual
+B fin_condicion      ; Saltamos al final para evitar entrar al bloque del ELSE
+
+es_diferente:
+// --- Bloque ELSE: Se ejecuta SOLO si X9 NO es 10 ---
+    MOV X0, #0       ; Código que se ejecuta si es diferente
+
+fin_condicion:
+    ; El programa continúa su ejecución normal aquí
+            </code></pre>
+        </article>
+    </main>
+
+    <footer>
+        <p>[ PROYECTO INICIADO POR: <span class="autor">Պ¥ՏԵӗԄұՄ§ OFC</span> ]</p>
+        <p>STATUS: OPERACIONAL // ENTORNO: AARCH64_LABS // YEAR: 2026</p>
+    </footer>
+
+<script>
+const canvas = document.getElementById('Matrix');
+const context = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const katakana = '01'; // Puedes poner '01X0X9SP' para que use tus registros
+const fontSize = 16;
+const columns = canvas.width / fontSize;
+
+const rainDrops = [];
+
+for (let x = 0; x < columns; x++) {
+    rainDrops[x] = 1;
+}
+
+const draw = () => {
+    context.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    context.fillStyle = '#00ff66'; // El verde neón de MYSTERIUS
+    context.font = fontSize + 'px monospace';
+
+    for (let i = 0; i < rainDrops.length; i++) {
+        const text = katakana.charAt(Math.floor(Math.random() * katakana.length));
+        context.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+
+        if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+            rainDrops[i] = 0;
+        }
+        rainDrops[i]++;
+    }
+};
+
+setInterval(draw, 30);
+</script>
+
+</body>
+</html>

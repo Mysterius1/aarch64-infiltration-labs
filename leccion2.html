@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial Aarch64 - Instrucciones Básicas</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+    <canvas id="Matrix"></canvas>
+
+    <header>
+        <h1>Curso de Assembly Aarch64 (ARM 64-bits)</h1>
+        <p>Aprende programación de bajo nivel con una estructura clara y profesional.</p>
+    </header>
+
+    <main>
+        <nav class="terminal-menu">
+    <div class="terminal-header">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="terminal-title">DECRYPT_MODULE_v3.asm</span>
+    </div>
+    <div class="terminal-body">
+        <p><span class="prompt">Պ¥ՏԵӗԄұՄ§@OFC:~#</span> ./access_database.bin</p>
+        
+        <!-- BARRA DE CARGA ÉPICA -->
+        <div class="progress-container">
+            <div class="progress-bar"></div>
+        </div>
+        <p class="text-loading">BYPASSING_ENCRYPTION... DONE</p>
+
+        <ul>
+            <li><a href="index.html" class="active">/01_REGISTROS</a></li>
+            <li><a href="leccion2.html">/02_ARITMETICA</a></li>
+            <li><a href="leccion3.html">/03_MEMORIA_RAM</a></li>
+            <li><a href="leccion4.html">/04_CONTROL_FLUJO</a></li>
+        </ul>
+    </div>
+</nav>
+
+        <article>
+            <h2>Lección 2: Instrucciones de Movimiento y Aritmética</h2>
+            <p>En la arquitectura Aarch64, las instrucciones siguen un formato estándar. Por regla general, el primer registro que escribes es el <strong>destino</strong> (donde se guarda el resultado) y los siguientes son los <strong>orígenes</strong> (los datos que se van a operar).</p>
+            
+            <h3>1. Regla de Oro: La Sintaxis de Operandos</h3>
+            <p>La estructura de casi todas las instrucciones en ARM de 64 bits es la siguiente:</p>
+            <pre><code>INSTRUCCION destino, origen1, origen2</code></pre>
+
+            <h3>Aclaración Importante: ¿Qué significan Xd, Xn y Xm?</h3>
+            <p>Cuando revises manuales de programación o guías de Aarch64, verás que las instrucciones usan letras minúsculas como <code>Xd</code>, <code>Xn</code> o <code>Xm</code>. Estas letras no se escriben tal cual en el código; son <strong>marcadores de posición</strong> que representan lo siguiente:</p>
+            
+            <ul>
+                <li>
+                    <strong><code>Xd</code> (Destino):</strong> La letra <em>d</em> viene de <em>Destination</em>. Es el registro donde el procesador guardará el resultado final de la operación. Siempre se escribe en la primera posición.
+                </li>
+                <li>
+                    <strong><code>Xn</code> (Primer Origen):</strong> La letra <em>n</em> representa al primer registro que aporta datos para la operación. Se coloca en la segunda posición.
+                </li>
+                <li>
+                    <strong><code>Xm</code> (Segundo Origen):</strong> La letra <em>m</em> representa al segundo registro que se va a operar (sumar, restar, etc.). Se coloca en la tercera posición.
+                </li>
+            </ul>
+            
+            <p><strong>Ejemplo real:</strong> Si la teoría te dice <code>ADD Xd, Xn, Xm</code>, tu código real reemplazando los marcadores por registros válidos se verá así: <code>ADD X11, X9, X10</code>.</p>
+
+            <h3>2. Las 3 Instrucciones Fundamentales</h3>
+            <p>Para manipular los registros que aprendiste en la lección anterior, necesitas dominar estos tres comandos:</p>
+            
+            <ol>
+                <li>
+                    <strong><code>MOV</code> (Move):</strong> 
+                    Copia un valor dentro de un registro. Puede copiar un número directo (llamado valor inmediato) o duplicar el contenido de un registro en otro.
+                    <br><em>Sintaxis:</em> <code>MOV Xd, Xm</code> o <code>MOV Xd, #inmediato</code>
+                </li>
+                <li>
+                    <strong><code>ADD</code> (Add):</strong> 
+                    Suma dos valores y guarda el resultado en el registro destino. Puede sumar dos registros, o un registro y un número directo.
+                    <br><em>Sintaxis:</em> <code>ADD Xd, Xn, Xm</code> o <code>ADD Xd, Xn, #inmediato</code>
+                </li>
+                <li>
+                    <strong><code>SUB</code> (Subtract):</strong> 
+                    Resta el segundo operando del primero y almacena el resultado en el registro destino.
+                    <br><em>Sintaxis:</em> <code>SUB Xd, Xn, Xm</code> o <code>SUB Xd, Xn, #inmediato</code>
+                </li>
+            </ol>
+
+            <h3>3. Guía de Restricciones Técnicas Importantes</h3>
+            <p>Aarch64 es muy estricto con sus operaciones. Tus alumnos deben conocer estas reglas para no generar errores de compilación:</p>
+            <ul>
+                <li><strong>Consistencia de tamaño:</strong> No puedes mezclar registros de diferentes tamaños en la misma instrucción. Ejemplo: <code>ADD X0, X1, W2</code> es un error. Deben ser todos <code>X</code> (64 bits) o todos <code>W</code> (32 bits).</li>
+                <li><strong>El prefijo de los números (#):</strong> En Aarch64, cada vez que uses un número directo en el código, debes poner obligatoriamente el símbolo de numeral antes. Ejemplo: <code>#5</code> o <code>#0x20</code> (para hexadecimal).</li>
+                <li><strong>Límite de los números inmediatos:</strong> Con <code>MOV</code>, <code>ADD</code> y <code>SUB</code>, el número directo máximo que puedes usar directamente es de 12 bits (un valor entre 0 y 4095). Para números más grandes se usan técnicas avanzadas.</li>
+            </ul>
+
+            <h3>4. Ejemplo Práctico Estructurado</h3>
+            <p>Analiza el siguiente bloque de código donde aplicamos los registros de trabajo temporales junto con las nuevas instrucciones:</p>
+            
+            <pre><code>
+// 1. Inicializamos los registros con valores iniciales
+MOV X9, #25          ; Copia el número 25 en el registro temporal X9
+MOV X10, #10         ; Copia el número 10 en el registro temporal X10
+
+// 2. Realizamos operaciones matemáticas
+ADD X11, X9, X10     ; Suma X9 + X10 (25 + 10). El resultado (35) se guarda en X11
+SUB X12, X11, #5      ; Resta 5 a X11 (35 - 5). El resultado (30) se guarda en X12
+
+// Al finalizar, X12 contiene el valor 30 de forma segura
+            </code></pre>
+        </article>
+    </main>
+
+    <footer>
+        <p>[ PROYECTO INICIADO POR: <span class="autor">Պ¥ՏԵӗԄұՄ§ OFC</span> ]</p>
+        <p>STATUS: OPERACIONAL // ENTORNO: AARCH64_LABS // YEAR: 2026</p>
+    </footer>
+
+<script>
+const canvas = document.getElementById('Matrix');
+const context = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const katakana = '01'; // Puedes poner '01X0X9SP' para que use tus registros
+const fontSize = 16;
+const columns = canvas.width / fontSize;
+
+const rainDrops = [];
+
+for (let x = 0; x < columns; x++) {
+    rainDrops[x] = 1;
+}
+
+const draw = () => {
+    context.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    context.fillStyle = '#00ff66'; // El verde neón de MYSTERIUS
+    context.font = fontSize + 'px monospace';
+
+    for (let i = 0; i < rainDrops.length; i++) {
+        const text = katakana.charAt(Math.floor(Math.random() * katakana.length));
+        context.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+
+        if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+            rainDrops[i] = 0;
+        }
+        rainDrops[i]++;
+    }
+};
+
+setInterval(draw, 30);
+</script>
+
+</body>
+</html>
