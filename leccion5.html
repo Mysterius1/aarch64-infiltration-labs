@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial Aarch64 - Estructura y Hola Mundo</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+    <!-- Capa de datos Matrix -->
+    <div class="matrix-bg"></div>
+
+    <header>
+        <div class="logo-container">
+            <img src="perfil.jpg" alt="MYSTERIUS LOGO" class="hacker-logo">
+        </div>
+        <h1 class="glitch-effect" data-text="Պ¥ՏԵӗԄұՄ§ OFC">Պ¥ՏԵӗԄұՄ§ OFC</h1>
+        <p>AARCH64_INFILTRATION_LABS // VOL_1</p>
+    </header>
+
+    <main>
+        <!-- Consola de Navegación -->
+        <nav class="terminal-menu">
+            <div class="terminal-header">
+                <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                <span class="terminal-title">DECRYPT_MODULE_v3.asm</span>
+            </div>
+            <div class="terminal-body">
+                <p><span class="prompt">Պ¥ՏԵӗԄұՄ§@OFC:~#</span> ./access_database.bin</p>
+                <div class="progress-container">
+                    <div class="progress-bar"></div>
+                </div>
+                <p class="text-loading">BYPASSING_ENCRYPTION... DONE</p>
+                <ul>
+                    <li><a href="index.html">/01_REGISTROS</a></li>
+                    <li><a href="leccion2.html">/02_ARITMETICA</a></li>
+                    <li><a href="leccion3.html">/03_MEMORIA_RAM</a></li>
+                    <li><a href="leccion4.html">/04_CONTROL_FLUJO</a></li>
+                    <li><a href="leccion5.html" class="active">/05_HOLA_MUNDO</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Bloque de Datos de la Lección -->
+        <article>
+            <h2>Lección 5: Anatomía del Código y Hola Mundo</h2>
+            <p>Un programa ejecutable en Aarch64 no es solo una lista suelta de instrucciones. El código se divide estrictamente en <strong>secciones (sections)</strong> y <strong>directivas</strong> que organizan la memoria RAM.</p>
+            
+            <h3>1. Las 3 Secciones Obligatorias del Sistema</h3>
+            <p>Cuando el Kernel del sistema operativo carga tu programa, busca estas tres etiquetas para saber qué hacer:</p>
+            <ul>
+                <li>
+                    <strong><code>.data</code> (Sección de Datos Inicializados):</strong> 
+                    Aquí se reservan y guardan las variables fijas que ya tienen un valor desde el principio. Por ejemplo, cadenas de texto, mensajes de error o constantes numéricas fijas. Ocupa espacio real en el archivo ejecutable final.
+                </li>
+                <li>
+                    <strong><code>.bss</code> (Block Started by Symbol):</strong> 
+                    Sección reservada para variables globales que **no** tienen un valor inicial (empiezan en cero). Sirve para reservar grandes bloques de memoria RAM estática (buffers) donde guardarás datos que el usuario introduzca más adelante. No ocupa espacio en el disco duro.
+                </li>
+                <li>
+                    <strong><code>.text</code> (Sección de Código):</strong> 
+                    Esta es la sección sagrada. Aquí es donde se escriben las instrucciones reales del procesador (como <code>MOV</code>, <code>ADD</code>, <code>SVC</code>). Esta memoria se marca como "Solo Lectura" para evitar que el programa se modifique a sí mismo por accidente.
+                </li>
+            </ul>
+
+            <h3>2. Directivas de Enlazado de Red</h3>
+            <p>Para que el compilador y el sistema operativo se comuniquen, usamos instrucciones especiales llamadas directivas (llevan un punto al inicio):</p>
+            <ul>
+                <li><strong><code>.global _start</code>:</strong> Le avisa al enlazador (Linker) que la etiqueta <code>_start</code> debe ser visible desde fuera del archivo. Es obligatoria para que el sistema operativo sepa en qué byte exacto arranca la primera línea de tu programa.</li>
+                <li><strong><code>_start:</code>:</strong> Es el punto de entrada oficial (Entry Point). Todo lo que esté arriba de esta etiqueta no se ejecutará al inicio.</li>
+            </ul>
+
+            <h3>3. Código Fuente Completo: Tu Primer Hola Mundo</h3>
+            <p>Analiza el esqueleto de un programa real listo para compilar en Linux Aarch64. Usaremos la llamada al sistema <code>64</code> (sys_write) para imprimir y la <code>93</code> (sys_exit) para salir de forma limpia:</p>
+
+            <pre><code>
+.data
+    msg:    .ascii "¡Hola Mundo desde Aarch64!\n"  ; Nuestro texto en memoria
+    len = . - msg                               ; Calcula el tamaño del texto
+
+.text
+.global _start
+
+_start:
+    ; ---- PASO 1: CONFIGURAR LA IMPRESIÓN ----
+    MOV X0, #1          ; Descriptor: 1 = Pantalla (stdout)
+    LDR X1, =msg        ; Cargamos la dirección de memoria de nuestro texto
+    MOV X2, len         ; Pasamos la longitud exacta calculada en bytes
+    MOV X8, #64         ; Número de Syscall en ARM64: 64 = sys_write
+    SVC #0              ; Supervisor Call: Despierta al Kernel para que imprima
+
+    ; ---- PASO 2: SALIDA LIMPIA DEL SISTEMA ----
+    MOV X0, #0          ; Código de salida: 0 = Éxito sin fallos
+    MOV X8, #93         ; Número de Syscall en ARM64: 93 = sys_exit
+    SVC #0              ; Devuelve el control al sistema operativo de forma segura
+            </code></pre>
+
+            <h3>4. Nota Técnica para los Alumnos</h3>
+            <p><em>¡CUIDADO!</em> Si vienes de aprender arquitectura Intel x86-64, recordarás que la syscall de salida era la número 60 y la de escritura la número 1. En <strong>Aarch64 (ARM de 64 bits)</strong>, los números del Kernel cambian por completo: la escritura es <strong><code>64</code></strong> y la salida es <strong><code>93</code></strong>. Además, la interrupción ya no se ejecuta con <code>syscall</code>, sino con la instrucción <strong><code>SVC #0</code></strong>.</p>
+        </article>
+    </main>
+
+    <footer>
+        <p>[ PROYECTO INICIADO POR: <span class="autor">Պ¥ՏԵӗԄұՄ§ OFC</span> ]</p>
+        <p>STATUS: OPERACIONAL // ENTORNO: AARCH64_LABS // YEAR: 2026</p>
+    </footer>
+</body>
+</html>
